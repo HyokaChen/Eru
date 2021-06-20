@@ -53,8 +53,6 @@ RIGHT_BRACKET = ']'
 PERCENT = '%'
 COLON = '::'
 HALF_COLON = ':'
-MARK = '!'
-WAVE = '~'
 
 # 解析内容类型
 TEXT = "text"

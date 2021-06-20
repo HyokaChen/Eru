@@ -9,14 +9,19 @@
  @Description:
  @License    : (C) Copyright 2016-2021, iFuture Corporation Limited.
 """
+import re
 from utils.color import Colored
 from configs.constant import (XPATH_EXTRACTOR, JSON_EXTRACTOR, CSS_EXTRACTOR,
                               REDIS_EXTRACTOR, FUNCTION_EXTRACTOR, REPLACE_EXTRACTOR,
                               REGEX_EXTRACTOR, FORMAT_EXTRACTOR, EXECUTE_EXTRACTOR,
-                              ONE, LIST, MARK, WAVE)
+                              GREATER_THAN ,LIST)
+from exceptions import (XpathException, JsonException, CSSException, FormatException)
+from utils.decorator import return_one_self
 from lxml.etree import _Element
 from bs4.element import Tag
 from typing import List, Optional
+
+MATCH_TOKEN = re.compile(r'{([a-zA-Z_].*)}')
 
 
 class Operation(object):
@@ -32,7 +37,7 @@ class Operation(object):
         self.name = name
         self.script = script
         self.target = target
-        self.one_or_list = one_or_list
+        self.one_or_list = one_or_list if one_or_list else LIST
 
     def __str__(self):
         return Colored.yellow(f"[{self.name}] <Operation [{self.script}]"
@@ -55,45 +60,57 @@ class Operation(object):
         elif self.name == REGEX_EXTRACTOR:
             pass
         elif self.name == FORMAT_EXTRACTOR:
-            pass
+            result = self._format_execute()
         elif self.name == EXECUTE_EXTRACTOR:
-            pass
+            result = self._execute_execute()
         return result
 
+    @return_one_self
     def _xpath_execute(self):
         if isinstance(self.target, _Element):
             match_data = self.target.xpath(self.script)
-            if self.one_or_list == ONE:
-                return match_data[0]
-            elif self.one_or_list == LIST:
-                return match_data
+            return match_data
         else:
-            raise Exception(f"[core.model.Operation._xpath_execute()]{self.script} XPath 语法不能执行，"
-                            f"因为target不是 XPath 实例")
+            raise XpathException("core.model.Operation._xpath_execute", self.script)
 
+    @return_one_self
     def _css_execute(self):
         if isinstance(self.target, Tag):
-            if self.one_or_list == ONE:
-                return self.target.select_one(self.script)
-            elif self.one_or_list == LIST:
-                return self.target.select(self.script)
+            return self.target.select(self.script)
         else:
-            raise Exception(f"[core.model.Operation._css_execute()]{self.script} CSS Selector语法不能执行，"
-                            f"因为target不是 BeautifulSoup4 实例")
+            raise CSSException("core.model.Operation._css_execute", self.script)
 
+    @return_one_self
     def _json_execute(self):
-        # 形如 a ! b ~ c  代表 a 是单个字典，内部的b是列表，再从中提取 c
+        # 形如 a > b > c
         if isinstance(self.target, dict):
             all_words = self.script.split()
             current_node = self.target
             for w in all_words:
-                if w not in (MARK, WAVE):
+                if w == GREATER_THAN:
+                    pass
+                else:
                     if isinstance(current_node, dict):
                         current_node = current_node.get(w)
                     elif isinstance(current_node, list):
                         current_node = [c.get(w) for c in current_node]
-                elif w == MARK:
-                    pass
+            return current_node
         else:
-            raise Exception(f"[core.model.Operation._json_execute()]{self.script} Json 抽取语法不能执行，"
-                            f"因为target不是 dict 实例")
+            raise JsonException("core.model.Operation._json_execute", self.script)
+
+    @return_one_self
+    def _format_execute(self):
+        parameters = MATCH_TOKEN.findall(self.script)
+        result = {}
+        for p in parameters:
+            try:
+                v = self.target.get(p)
+                result.setdefault(p, v)
+            except Exception:
+                raise FormatException("core.model.Operation._format_execute", self.script, p)
+        return self.script.format(**result)
+
+    @return_one_self
+    def _execute_execute(self):
+        raise NotImplementedError
+
