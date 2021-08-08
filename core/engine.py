@@ -29,7 +29,7 @@ class Eru(object):
         self.template = self._read_template()
 
     def _read_template(self):
-
+        pass
 
     async def start(self):
         pass
