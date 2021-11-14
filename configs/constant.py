@@ -53,6 +53,7 @@ RIGHT_BRACKET = ']'
 PERCENT = '%'
 COLON = '::'
 HALF_COLON = ':'
+TRANSFORM_TO = '->'
 
 # 解析内容类型
 TEXT = "text"

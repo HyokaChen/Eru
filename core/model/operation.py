@@ -11,23 +11,29 @@
 """
 import re
 import ast
+import importlib
+from flashtext import KeywordProcessor
 from utils.color import Colored
 from configs.constant import (XPATH_EXTRACTOR, JSON_EXTRACTOR, CSS_EXTRACTOR,
                               REDIS_EXTRACTOR, FUNCTION_EXTRACTOR, REPLACE_EXTRACTOR,
                               REGEX_EXTRACTOR, FORMAT_EXTRACTOR, EXECUTE_EXTRACTOR,
-                              GREATER_THAN, LIST)
-from exceptions import (XpathException, JsonException, CSSException, FormatException)
+                              GREATER_THAN, LIST, TRANSFORM_TO)
+from exceptions import *
 from utils.decorator import return_one_self
+from utils.db import redis_db
 from lxml.etree import _Element
 from bs4.element import Tag
-from typing import List, Optional
+from typing import List, Dict, Optional, Any, Union
 
 MATCH_TOKEN = re.compile(r'{([a-zA-Z_].*)}')
+MATCH_NUMBER = re.compile(r'\[(\d+)]', re.MULTILINE)
 
 
 class Operation(object):
-    def __init__(self, name: str, script: str, target, extra: dict,
-                 one_or_list: str = LIST):
+    def __init__(self, name: str, script: str,
+                 target: Union[_Element, Tag, Dict, str],
+                 extra: Dict[str, Any],
+                 one_or_list: str = LIST) -> None:
         """
         初始化
         :param name: 名称，如是xpath, json, css, function, redis, execute, format, regex, replace
@@ -36,17 +42,17 @@ class Operation(object):
         :param extra: 额外数据
         :param one_or_list: 返回list还是单个
         """
-        self.name = name
-        self.script = script
-        self.target = target
-        self.extra = extra
-        self.one_or_list = one_or_list if one_or_list else LIST
+        self.name: str = name
+        self.script: str = script
+        self.target: Union[_Element, Tag, Dict, str] = target
+        self.extra: Dict[str, Any] = extra
+        self.one_or_list: str = one_or_list if one_or_list else LIST
 
     def __str__(self):
         return Colored.yellow(f"[{self.name}] <Operation [{self.script}]"
                               f" [{self.target}]>")
 
-    def execute(self):
+    def execute(self) -> Union[str, List[str]]:
         """
         执行
         :return:
@@ -73,7 +79,7 @@ class Operation(object):
         return result
 
     @return_one_self
-    def _xpath_execute(self):
+    def _xpath_execute(self) -> Union[str, List[str]]:
         """
         xpath 解析
         :return:
@@ -85,7 +91,7 @@ class Operation(object):
             raise XpathException("core.model.Operation._xpath_execute", self.script)
 
     @return_one_self
-    def _css_execute(self):
+    def _css_execute(self) -> Union[str, List[str], int]:
         """
         css 选择器解析
         example: css#id
@@ -103,29 +109,40 @@ class Operation(object):
             raise CSSException("core.model.Operation._css_execute", self.script)
 
     @return_one_self
-    def _json_execute(self):
+    def _json_execute(self) -> Union[str, List[str]]:
         """
         json 解析,
         example: a > b > c
         :return:
         """
-        if isinstance(self.target, dict):
-            all_words = self.script.split()
+        if isinstance(self.target, Dict):
+            all_words = self.script.split(GREATER_THAN)
+            # 添加 end 标记
+            all_words.append('end')
             current_node = self.target
             for w in all_words:
-                if w == GREATER_THAN:
-                    pass
-                else:
-                    if isinstance(current_node, dict):
-                        current_node = current_node.get(w)
-                    elif isinstance(current_node, list):
-                        current_node = [c.get(w) for c in current_node]
+                if isinstance(current_node, Dict):
+                    current_node = current_node.get(w)
+                elif isinstance(current_node, List):
+                    if current_node:
+                        if isinstance(current_node[0], Dict):
+                            current_node = [c.get(w) for c in current_node]
+                        elif isinstance(current_node[0], str):
+                            current_node = [c for c in current_node]
+                        elif isinstance(current_node[0], List):
+                            current_node = [c for c in current_node]
+                elif isinstance(current_node, str) or isinstance(current_node, int):
+                    break
+                # 处理下标
+                match_number = MATCH_NUMBER.findall(w)
+                if match_number and isinstance(current_node, List):
+                    current_node = current_node[match_number[0]]
             return current_node
         else:
             raise JsonException("core.model.Operation._json_execute", self.script)
 
     @return_one_self
-    def _format_execute(self):
+    def _format_execute(self) -> str:
         """
         格式化占位符解析
         example: {name}
@@ -142,31 +159,60 @@ class Operation(object):
         return self.script.format(**result)
 
     @return_one_self
-    def _execute_execute(self):
+    def _execute_execute(self) -> Union[str, int]:
         """
         执行语句解析
         example: {name} + 1
         :return:
         """
         # TODO: ast.literal_eval
-        raise NotImplementedError
+        parameters = MATCH_TOKEN.findall(self.script)
+        result = {}
+        for p in parameters:
+            try:
+                v = self.target.get(p)
+                result.setdefault(p, v)
+            except Exception:
+                raise ExecuteException("core.model.Operation._execute_execute", self.script, p)
+        return ast.literal_eval(self.script.format(**result))
 
     @return_one_self
-    def _regex_execute(self):
+    def _regex_execute(self) -> Union[str, List[str]]:
         """
         正则表达式解析
         :return:
         """
-        raise NotImplementedError
+        if isinstance(self.target, str):
+            result = re.findall(self.script, self.target)
+            if result:
+                return result
+            else:
+                raise RegexException("core.model.Operation._regex_execute", self.script)
+        else:
+            raise RegexException("core.model.Operation._regex_execute", self.script)
 
     @return_one_self
-    def _replace_execute(self):
+    def _replace_execute(self) -> Union[str, List[str]]:
         """
         替换内容解析
         :return:
         """
         # TODO：可能可以用flashtext
-        raise NotImplementedError
+        replace_a, to_b = self.script.split(TRANSFORM_TO)
+        # 1. 初始化关键字处理器
+        keyword_processor = KeywordProcessor(case_sensitive=True)
+        # 2. 添加关键词
+        keyword_processor.add_keyword(replace_a, to_b)
+        try:
+            if isinstance(self.target, str):
+                # 3. 替换关键词
+                return keyword_processor.replace_keywords(self.target)
+            elif isinstance(self.target, List):
+                return [keyword_processor.replace_keywords(s) for s in self.target]
+            else:
+                raise Exception()
+        except Exception:
+            raise RegexException("core.model.Operation._replace_execute", self.script)
 
     @return_one_self
     def _function_execute(self):
@@ -174,7 +220,14 @@ class Operation(object):
         函数执行解析
         :return:
         """
-        raise NotImplementedError
+        try:
+            package, method = self.script.rsplit('.', 1)
+            module = importlib.import_module(package)
+            m = getattr(module, method)
+            # 是否需要根据形参来动态function，而不是只传一个值
+            return m(self.target)
+        except Exception:
+            raise FunctionException("core.model.Operation._function_execute", self.script)
 
     @return_one_self
     def _redis_execute(self):
@@ -182,4 +235,8 @@ class Operation(object):
         调用redis 数据解析
         :return:
         """
-        raise NotImplementedError
+        try:
+            # 仅支持get
+            return redis_db.get(self.script)
+        except Exception:
+            raise RedistException("core.model.Operation._redis_execute", self.script)

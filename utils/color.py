@@ -17,22 +17,22 @@ init(autoreset=False)
 class Colored(object):
     #  前景色:红色  背景色:默认
     @staticmethod
-    def red(s):
+    def red(s: str):
         return Fore.LIGHTRED_EX + s + Fore.RESET
 
     #  前景色:绿色  背景色:默认
     @staticmethod
-    def green(s):
+    def green(s: str):
         return Fore.LIGHTGREEN_EX + s + Fore.RESET
 
     @staticmethod
-    def yellow(s):
+    def yellow(s: str):
         return Fore.LIGHTYELLOW_EX + s + Fore.RESET
 
     @staticmethod
-    def white(s):
+    def white(s: str):
         return Fore.LIGHTWHITE_EX + s + Fore.RESET
 
     @staticmethod
-    def blue(s):
+    def blue(s: str):
         return Fore.LIGHTBLUE_EX + s + Fore.RESET

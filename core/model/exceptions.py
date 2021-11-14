@@ -35,3 +35,28 @@ class JsonException(BaseError):
 class FormatException(BaseError):
     def __init__(self, func, script, value):
         BaseError.__init__(self, func, script, f"Format 抽取语法不能执行，没有找到{value}")
+
+
+class ExecuteException(BaseError):
+    def __init__(self, func, script, value):
+        BaseError.__init__(self, func, script, f"Execute 抽取语法不能执行，没有找到{value}")
+
+
+class RegexException(BaseError):
+    def __init__(self, func, script):
+        BaseError.__init__(self, func, script, f"Regex 抽取语法不能执行")
+
+
+class ReplaceException(BaseError):
+    def __init__(self, func, script):
+        BaseError.__init__(self, func, script, f"Replace 抽取语法不能执行")
+
+
+class FunctionException(BaseError):
+    def __init__(self, func, script):
+        BaseError.__init__(self, func, script, f"Function 抽取语法不能执行")
+
+
+class RedistException(BaseError):
+    def __init__(self, func, script):
+        BaseError.__init__(self, func, script, f"Redis 抽取语法不能执行")
