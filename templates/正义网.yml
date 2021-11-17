@@ -1,0 +1,70 @@
+START_URL: 'http://www.jcrb.com/'
+SPIDER_NAME: zhengyi_gongyisusong
+SITE_NAME: 正义网-公益诉讼
+METHOD: GET
+REFERER: 'http://www.jcrb.com/'
+REQUESTS:
+  -
+    request_id: 1
+    extra_headers:
+      User-Agent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.45 Safari/537.36'
+    return_type: html
+    timeout: 20000
+    result: RESULTS.1
+    next_request: 2
+  -
+    request_id: 2
+    start_url: 'http://search.jcrb.com/was5/web/search?page={page}&channelid=19144&searchword=doctitle%3Dlike%28%E5%85%AC%E7%9B%8A%E8%AF%89%E8%AE%BC%29&keyword=doctitle%3Dlike%28%E5%85%AC%E7%9B%8A%E8%AF%89%E8%AE%BC%29&perpage=10&outlinepage=10'
+    referer: 'http://search.jcrb.com/was5/web/search'
+    extra_headers:
+      Cookie: RESULTS.1.cookie
+    result: RESULTS.2
+    return_type: css
+    timeout: 20000
+    stop_by:
+      -
+        name: page
+        condition: <=
+        min_value: 1
+        max_value: 3872
+        evaluation: "page"
+        step: 1
+  -
+    request_id: 2
+    start_url: RESULTS.1.url
+    extra_headers:
+      Cookie: RESULTS.1.cookie
+    result: RESULTS.2
+    return_type: css
+    timeout: 20000
+    is_duplicate: true
+    return_item: items.Event
+RESULTS:
+  -
+    result_id: 1
+    cookie:
+      name: response
+      script: "cookie"
+  -
+    result_id: 2
+    url:
+      name: xpath
+      script: "//section[@class='item_content']//div[@class='title']/a"
+    title:
+      name: xpath
+      script: "//section[@class='item_content']//div[@class='title']/a/text()"
+    news_time:
+      name: xpath
+      script: "//section[@class='item_content']//div[contains(@class,'time')]/text()"
+  -
+    result_id: 3
+    content:
+      name: css
+      script: "div.mainContent"
+NEED_RENDER: false
+TIMEOUT: 200
+USE_PROXY: false
+SLEEP_TIME: 10
+SESSION: true
+COOKIES:
+RETURN_TYPE: html

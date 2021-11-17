@@ -9,10 +9,20 @@
  @Description:
  @License    : (C) Copyright 2016-2021, iFuture Corporation Limited.
 """
+from datetime import datetime
 from dataclasses import dataclass, field
 from configs.constant import GET, HTML
 from utils.color import Colored
-from typing import List, Dict, Union
+from typing import List, Dict, Union, Any
+
+
+@dataclass
+class StopCondition(object):
+    name: str
+    min_value: Union[int, datetime]
+    max_value: Union[int, datetime]
+    evaluation: str
+    step: int  # 数字或者天数
 
 
 @dataclass
@@ -35,6 +45,7 @@ class RequestTemplate(object):
     result: str = None
     return_type: str = HTML
     return_item: str = None
+    stop_by: List[StopCondition] = None
 
     def __str__(self):
         return Colored.yellow(f"[{self.request_id}] <Request [{self.method}] [{self.start_url}]>")

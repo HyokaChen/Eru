@@ -60,3 +60,8 @@ class FunctionException(BaseError):
 class RedistException(BaseError):
     def __init__(self, func, script):
         BaseError.__init__(self, func, script, f"Redis 抽取语法不能执行")
+
+
+class ResponseException(BaseError):
+    def __init__(self, func, script):
+        BaseError.__init__(self, func, script, f"Response 找不到指定的header")

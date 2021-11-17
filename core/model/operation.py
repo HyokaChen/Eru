@@ -17,11 +17,12 @@ from utils.color import Colored
 from configs.constant import (XPATH_EXTRACTOR, JSON_EXTRACTOR, CSS_EXTRACTOR,
                               REDIS_EXTRACTOR, FUNCTION_EXTRACTOR, REPLACE_EXTRACTOR,
                               REGEX_EXTRACTOR, FORMAT_EXTRACTOR, EXECUTE_EXTRACTOR,
-                              GREATER_THAN, LIST, TRANSFORM_TO)
+                              GREATER_THAN, LIST, TRANSFORM_TO, RESPONSE_EXTRACTOR)
 from exceptions import *
 from utils.decorator import return_one_self
 from utils.db import redis_db
 from lxml.etree import _Element
+from httpx import Response
 from bs4.element import Tag
 from typing import List, Dict, Optional, Any, Union
 
@@ -31,12 +32,12 @@ MATCH_NUMBER = re.compile(r'\[(\d+)]', re.MULTILINE)
 
 class Operation(object):
     def __init__(self, name: str, script: str,
-                 target: Union[_Element, Tag, Dict, str],
+                 target: Union[_Element, Tag, Dict, str, Response],
                  extra: Dict[str, Any],
                  one_or_list: str = LIST) -> None:
         """
         初始化
-        :param name: 名称，如是xpath, json, css, function, redis, execute, format, regex, replace
+        :param name: 名称，如是xpath, json, css, function, redis, execute, format, regex, replace, response
         :param script: 执行的语句操作，如xpath就是xpath语句等
         :param target: 目标，如function的话就是入参
         :param extra: 额外数据
@@ -44,7 +45,7 @@ class Operation(object):
         """
         self.name: str = name
         self.script: str = script
-        self.target: Union[_Element, Tag, Dict, str] = target
+        self.target: Union[_Element, Tag, Dict, str, Response] = target
         self.extra: Dict[str, Any] = extra
         self.one_or_list: str = one_or_list if one_or_list else LIST
 
@@ -76,6 +77,8 @@ class Operation(object):
             result = self._format_execute()
         elif self.name == EXECUTE_EXTRACTOR:
             result = self._execute_execute()
+        elif self.name == RESPONSE_EXTRACTOR:
+            result = self._response_execute()
         return result
 
     @return_one_self
@@ -240,3 +243,15 @@ class Operation(object):
             return redis_db.get(self.script)
         except Exception:
             raise RedistException("core.model.Operation._redis_execute", self.script)
+
+    @return_one_self
+    def _response_execute(self):
+        """
+        解析抽取header
+        :return:
+        :rtype:
+        """
+        try:
+            return self.target.headers.get(self.script)
+        except Exception:
+            raise ResponseException("core.model.Operation._response_execute", self.script)

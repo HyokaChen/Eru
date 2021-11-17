@@ -19,7 +19,6 @@ from typing import Dict
 class ResultTemplate(object):
     result_id: int
     field_dict: Dict[str, Operation] = field(default_factory=dict)
-    global_parameter: str = None
 
     def __str__(self):
         return Colored.yellow(f"[{self.result_id}] <Result>")

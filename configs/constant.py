@@ -115,6 +115,7 @@ EXECUTE_EXTRACTOR = 'execute'
 FORMAT_EXTRACTOR = 'format'
 REGEX_EXTRACTOR = 'regex'
 REPLACE_EXTRACTOR = 'replace'
+RESPONSE_EXTRACTOR = 'response'
 
 NATIONALITY = {
     '': '未知',
