@@ -45,6 +45,7 @@ class Operation(object):
         """
         self.name: str = name
         self.script: str = script
+        # 默认不写 target 目标则为网页的 lxml 或者 bs，或者 json
         self.target: Union[_Element, Tag, Dict, str, Response] = target
         self.extra: Dict[str, Any] = extra
         self.one_or_list: str = one_or_list if one_or_list else LIST
@@ -218,7 +219,7 @@ class Operation(object):
             raise RegexException("core.model.Operation._replace_execute", self.script)
 
     @return_one_self
-    def _function_execute(self):
+    def _function_execute(self) -> Dict[str, Any]:
         """
         函数执行解析
         :return:
@@ -227,13 +228,13 @@ class Operation(object):
             package, method = self.script.rsplit('.', 1)
             module = importlib.import_module(package)
             m = getattr(module, method)
-            # 是否需要根据形参来动态function，而不是只传一个值
+            # TODO: 是否需要根据形参来动态function，而不是只传一个值
             return m(self.target)
         except Exception:
             raise FunctionException("core.model.Operation._function_execute", self.script)
 
     @return_one_self
-    def _redis_execute(self):
+    def _redis_execute(self) -> str:
         """
         调用redis 数据解析
         :return:
@@ -245,7 +246,7 @@ class Operation(object):
             raise RedistException("core.model.Operation._redis_execute", self.script)
 
     @return_one_self
-    def _response_execute(self):
+    def _response_execute(self) -> str:
         """
         解析抽取header
         :return:

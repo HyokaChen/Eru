@@ -11,6 +11,7 @@
 """
 import sys
 import asyncio
+from asyncio.events import AbstractEventLoop
 from envparse import env
 
 try:
@@ -30,8 +31,9 @@ async def main():
 
 
 if __name__ == '__main__':
-    loop = asyncio.get_event_loop()
+    loop: AbstractEventLoop = asyncio.get_event_loop()
     try:
+        read_config()
         loop.run_until_complete(main())
     except (KeyboardInterrupt, SystemExit):
         tasks = list(asyncio.Task.all_tasks(loop))

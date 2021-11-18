@@ -12,13 +12,14 @@
 from dataclasses import dataclass, field
 from core.model.operation import Operation
 from utils.color import Colored
-from typing import Dict
+from typing import Dict, Union, List
 
 
 @dataclass
 class ResultTemplate(object):
     result_id: int
-    field_dict: Dict[str, Operation] = field(default_factory=dict)
+    # 多个 Operation 组成管道，从上层走到下层，最终构建需要的字段
+    field_dict: Dict[str, Union[Operation, List[Operation]]] = field(default_factory=dict)
 
     def __str__(self):
         return Colored.yellow(f"[{self.result_id}] <Result>")

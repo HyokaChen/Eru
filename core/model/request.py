@@ -13,16 +13,14 @@ from datetime import datetime
 from dataclasses import dataclass, field
 from configs.constant import GET, HTML
 from utils.color import Colored
-from typing import List, Dict, Union, Any
+from typing import List, Dict, Union
 
 
 @dataclass
 class StopCondition(object):
     name: str
-    min_value: Union[int, datetime]
-    max_value: Union[int, datetime]
-    evaluation: str
-    step: int  # 数字或者天数
+    extent: str
+    step: int  # 数字/天数/年份
 
 
 @dataclass
@@ -45,6 +43,7 @@ class RequestTemplate(object):
     result: str = None
     return_type: str = HTML
     return_item: str = None
+    # 多个 stop 条件做笛卡尔积
     stop_by: List[StopCondition] = None
 
     def __str__(self):

@@ -11,7 +11,7 @@
 """
 from dataclasses import dataclass, field
 from typing import List
-from configs.constant import GET, HTML
+from configs.constant import GET, HTML, NEWS
 from core.model.request import RequestTemplate
 from core.model.process import ProcessTemplate
 from core.model.result import ResultTemplate
@@ -31,9 +31,10 @@ class BaseTemplate(object):
     TIMEOUT: int = 200
     USE_PROXY: bool = False
     SLEEP_TIME: int = 10
-    USE_SESSION: bool = True
+    SESSION: bool = True
     COOKIES: str = None
     RETURN_TYPE: str = HTML
-    DATA_TABLE: str = None
+    DATA_TABLE: str = NEWS
+    # 数字越小越靠快速消费
     PRIORITY: int = 1
 

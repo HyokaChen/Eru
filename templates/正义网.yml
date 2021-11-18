@@ -24,10 +24,7 @@ REQUESTS:
     stop_by:
       -
         name: page
-        condition: <=
-        min_value: 1
-        max_value: 3872
-        evaluation: "page"
+        extent: "1 -> 3881"
         step: 1
   -
     request_id: 2
@@ -49,22 +46,36 @@ RESULTS:
     result_id: 2
     url:
       name: xpath
-      script: "//section[@class='item_content']//div[@class='title']/a"
+      script: "//table//td[@class='f']//a/@href"
     title:
       name: xpath
-      script: "//section[@class='item_content']//div[@class='title']/a/text()"
-    news_time:
-      name: xpath
-      script: "//section[@class='item_content']//div[contains(@class,'time')]/text()"
+      script: "//table//td[@class='f']//a//text()"
   -
     result_id: 3
     content:
       name: css
       script: "div.mainContent"
+    news_time:
+      -
+        name: css
+        script: "span#pubtime_baidu"
+      -
+        name: regex
+        script: "时间：(.+)"
+    author:
+      - name: css
+        script: "span#author_baidu"
+      - name: regex
+        script: "作者：(.+)"
+    source:
+      - name: css
+        script: "span#source_baidu"
+      - name: regex
+        script: "新闻来源：(.+)"
 NEED_RENDER: false
 TIMEOUT: 200
 USE_PROXY: false
 SLEEP_TIME: 10
 SESSION: true
-COOKIES:
+COOKIES: ""
 RETURN_TYPE: html
