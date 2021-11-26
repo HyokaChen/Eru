@@ -24,7 +24,6 @@ python-dateutil = "^2.8.1"
 bs4 = "^0.0.1"
 html5lib = "^1.1"
 envparse = "^0.2.0"
-pyyaml = "^5.4.1"
 uvloop = "^0.15.0"
 aiorwlock = "^1.0.0"
 async-lru = "^1.0.2"
@@ -32,6 +31,9 @@ yarl = "^1.6.3"
 aioftp = "^0.18.1"
 aiopg = "^1.1.0"
 flashtext = "^2.7"
+watchdog = "^2.1.6"
+pottery = "^2.0.0"
+toml = "^0.10.2"
 
 [tool.poetry.dev-dependencies]
 

@@ -1,0 +1,99 @@
+START_URL = "http://www.jcrb.com/"
+SPIDER_NAME = "zhengyi_gongyisusong"
+SITE_NAME = "正义网-公益诉讼"
+METHOD = "GET"
+REFERER = "http://www.jcrb.com/"
+NEED_RENDER = false
+TIMEOUT = 200.0
+USE_PROXY = false
+SLEEP_TIME = 10.0
+SESSION = true
+COOKIES = ""
+RETURN_TYPE = "html"
+
+[[REQUESTS]]
+request_id = 1.0
+return_type = "html"
+timeout = 20000.0
+result = "RESULTS.1"
+next_request = 2.0
+
+  [REQUESTS.extra_headers]
+  User-Agent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.45 Safari/537.36"
+
+[[REQUESTS]]
+request_id = 2.0
+start_url = "http://search.jcrb.com/was5/web/search?page={page}&channelid=19144&searchword=doctitle%3Dlike%28%E5%85%AC%E7%9B%8A%E8%AF%89%E8%AE%BC%29&keyword=doctitle%3Dlike%28%E5%85%AC%E7%9B%8A%E8%AF%89%E8%AE%BC%29&perpage=10&outlinepage=10"
+referer = "http://search.jcrb.com/was5/web/search"
+result = "RESULTS.2"
+return_type = "css"
+timeout = 20000.0
+
+  [REQUESTS.extra_headers]
+  Cookie = "RESULTS.1.cookie"
+
+  [[REQUESTS.stop_by]]
+  name = "page"
+  extent = "1 -> 3881"
+  step = 1.0
+
+[[REQUESTS]]
+request_id = 2.0
+start_url = "RESULTS.1.url"
+result = "RESULTS.2"
+return_type = "css"
+timeout = 20000.0
+is_duplicate = true
+return_item = "items.Event"
+
+  [REQUESTS.extra_headers]
+  Cookie = "RESULTS.1.cookie"
+
+[[RESULTS]]
+result_id = 1.0
+
+  [RESULTS.cookie]
+  name = "response"
+  script = "cookie"
+
+[[RESULTS]]
+result_id = 2.0
+
+  [RESULTS.url]
+  name = "xpath"
+  script = "//table//td[@class='f']//a/@href"
+
+  [RESULTS.title]
+  name = "xpath"
+  script = "//table//td[@class='f']//a//text()"
+
+[[RESULTS]]
+result_id = 3.0
+
+  [RESULTS.content]
+  name = "css"
+  script = "div.mainContent"
+
+  [[RESULTS.news_time]]
+  name = "css"
+  script = "span#pubtime_baidu"
+
+  [[RESULTS.news_time]]
+  name = "regex"
+  script = "时间：(.+)"
+
+  [[RESULTS.author]]
+  name = "css"
+  script = "span#author_baidu"
+
+  [[RESULTS.author]]
+  name = "regex"
+  script = "作者：(.+)"
+
+  [[RESULTS.source]]
+  name = "css"
+  script = "span#source_baidu"
+
+  [[RESULTS.source]]
+  name = "regex"
+  script = "新闻来源：(.+)"

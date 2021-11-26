@@ -13,6 +13,9 @@ import sys
 import asyncio
 from asyncio.events import AbstractEventLoop
 from envparse import env
+from watchdog.observers import Observer
+from configs.constant import TEMPLATE_PATH
+from core.engine import Eru
 
 try:
     import uvloop
@@ -32,8 +35,13 @@ async def main():
 
 if __name__ == '__main__':
     loop: AbstractEventLoop = asyncio.get_event_loop()
+    # 监听文件变动
+    ob = Observer()
     try:
         read_config()
+        eru = Eru
+        ob.schedule(eru, TEMPLATE_PATH, True)
+        ob.start()
         loop.run_until_complete(main())
     except (KeyboardInterrupt, SystemExit):
         tasks = list(asyncio.Task.all_tasks(loop))
@@ -55,6 +63,8 @@ if __name__ == '__main__':
 
         if sys.version_info >= (3, 6):  # don't use PY_36 to pass mypy
             loop.run_until_complete(loop.shutdown_asyncgens())
+        ob.stop()
     finally:
         loop.close()
+        ob.join()
         # self.logger.info(Colored.yellow("[Liz2Bird]: Shut down....(@ $ _ $ @)----"))
