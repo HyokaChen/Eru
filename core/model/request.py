@@ -27,8 +27,8 @@ class StopCondition(object):
 class RequestTemplate(object):
     request_id: int
     start_url: Union[List[str], str]
-    method: str = GET
-    post_data: str = None
+    request_method: str = GET
+    post_data: Dict[str, str] = field(default_factory=dict)
     extra_headers: Dict[str, str] = field(default_factory=dict)
     referer: str = None
     process: str = None

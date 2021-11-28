@@ -22,6 +22,7 @@ class StatusType(Enum):
     FAIL = 2
 
 
+env.read_envfile('~/.env')
 # 配置文件
 POSTGRESQL_HOST = env('POSTGRESQL_HOST')
 POSTGRESQL_PORT = env.int('POSTGRESQL_PORT')

@@ -22,7 +22,7 @@ class BaseTemplate(object):
     START_URL: str
     SPIDER_NAME: str
     SITE_NAME: str
-    METHOD: str = GET
+    REQUEST_METHOD: str = GET
     REFERER: str = None
     REQUESTS: List[RequestTemplate] = field(default_factory=list)
     PROCESSES: List[ProcessTemplate] = field(default_factory=list)
@@ -31,10 +31,9 @@ class BaseTemplate(object):
     TIMEOUT: int = 200
     USE_PROXY: bool = False
     SLEEP_TIME: int = 10
-    SESSION: bool = True
+    USE_SESSION: bool = True
     COOKIES: str = None
     RETURN_TYPE: str = HTML
-    DATA_TABLE: str = NEWS
     # 数字越小越靠快速消费
     PRIORITY: int = 1
 

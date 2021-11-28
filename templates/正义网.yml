@@ -1,7 +1,7 @@
 START_URL: 'http://www.jcrb.com/'
 SPIDER_NAME: zhengyi_gongyisusong
 SITE_NAME: 正义网-公益诉讼
-METHOD: GET
+REQUEST_METHOD: GET
 REFERER: 'http://www.jcrb.com/'
 REQUESTS:
   -
@@ -76,6 +76,6 @@ NEED_RENDER: false
 TIMEOUT: 200
 USE_PROXY: false
 SLEEP_TIME: 10
-SESSION: true
+USE_SESSION: true
 COOKIES: ""
 RETURN_TYPE: html

@@ -18,7 +18,7 @@ from configs.constant import (XPATH_EXTRACTOR, JSON_EXTRACTOR, CSS_EXTRACTOR,
                               REDIS_EXTRACTOR, FUNCTION_EXTRACTOR, REPLACE_EXTRACTOR,
                               REGEX_EXTRACTOR, FORMAT_EXTRACTOR, EXECUTE_EXTRACTOR,
                               GREATER_THAN, LIST, TRANSFORM_TO, RESPONSE_EXTRACTOR)
-from exceptions import *
+from core.model.exceptions import *
 from utils.decorator import return_one_self
 from utils.db import redis_db
 from lxml.etree import _Element

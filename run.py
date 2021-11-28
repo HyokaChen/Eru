@@ -12,7 +12,6 @@
 import sys
 import asyncio
 from asyncio.events import AbstractEventLoop
-from envparse import env
 from watchdog.observers import Observer
 from configs.constant import TEMPLATE_PATH
 from core.engine import Eru
@@ -24,11 +23,6 @@ except Exception:
     print("Not support uvloop.")
 
 
-def read_config():
-    print("read configuration")
-    env.read_envfile('~/.env')
-
-
 async def main():
     pass
 
@@ -38,8 +32,7 @@ if __name__ == '__main__':
     # 监听文件变动
     ob = Observer()
     try:
-        read_config()
-        eru = Eru
+        eru = Eru(loop)
         ob.schedule(eru, TEMPLATE_PATH, True)
         ob.start()
         loop.run_until_complete(main())
@@ -64,6 +57,7 @@ if __name__ == '__main__':
         if sys.version_info >= (3, 6):  # don't use PY_36 to pass mypy
             loop.run_until_complete(loop.shutdown_asyncgens())
         ob.stop()
+        ob.join()
     finally:
         loop.close()
         ob.join()
