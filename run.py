@@ -32,7 +32,7 @@ if __name__ == '__main__':
     # 监听文件变动
     ob = Observer()
     try:
-        eru = Eru(loop)
+        eru = Eru()
         ob.schedule(eru, TEMPLATE_PATH, True)
         ob.start()
         loop.run_until_complete(main())

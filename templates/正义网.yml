@@ -10,7 +10,7 @@ REQUESTS:
       User-Agent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.45 Safari/537.36'
     return_type: html
     timeout: 20000
-    result: RESULTS.1
+    result_template: RESULTS.1
     next_request: 2
   -
     request_id: 2
@@ -18,7 +18,7 @@ REQUESTS:
     referer: 'http://search.jcrb.com/was5/web/search'
     extra_headers:
       Cookie: RESULTS.1.cookie
-    result: RESULTS.2
+    result_template: RESULTS.2
     return_type: css
     timeout: 20000
     stop_by:
@@ -27,11 +27,11 @@ REQUESTS:
         extent: "1 -> 3881"
         step: 1
   -
-    request_id: 2
+    request_id: 3
     start_url: RESULTS.1.url
     extra_headers:
       Cookie: RESULTS.1.cookie
-    result: RESULTS.2
+    result_template: RESULTS.2
     return_type: css
     timeout: 20000
     is_duplicate: true

@@ -15,7 +15,7 @@ RETURN_TYPE = "html"
 request_id = 1
 return_type = "html"
 timeout = 20000
-result = "RESULTS.1"
+result_template = "RESULTS.1"
 next_request = 2
 
   [REQUESTS.extra_headers]
@@ -25,7 +25,7 @@ next_request = 2
 request_id = 2
 start_url = "http://search.jcrb.com/was5/web/search?page={page}&channelid=19144&searchword=doctitle%3Dlike%28%E5%85%AC%E7%9B%8A%E8%AF%89%E8%AE%BC%29&keyword=doctitle%3Dlike%28%E5%85%AC%E7%9B%8A%E8%AF%89%E8%AE%BC%29&perpage=10&outlinepage=10"
 referer = "http://search.jcrb.com/was5/web/search"
-result = "RESULTS.2"
+result_template = "RESULTS.2"
 return_type = "css"
 timeout = 20000
 
@@ -38,9 +38,9 @@ timeout = 20000
   step = 1
 
 [[REQUESTS]]
-request_id = 2
+request_id = 3
 start_url = "RESULTS.1.url"
-result = "RESULTS.2"
+result_template = "RESULTS.2"
 return_type = "css"
 timeout = 20000
 is_duplicate = true

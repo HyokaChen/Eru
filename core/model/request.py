@@ -31,7 +31,7 @@ class RequestTemplate(object):
     post_data: Dict[str, str] = field(default_factory=dict)
     extra_headers: Dict[str, str] = field(default_factory=dict)
     referer: str = None
-    process: str = None
+    process_template: str = None
     parameters: str = None
     timeout: int = 20
     sleep_time: float = 0.5
@@ -40,7 +40,7 @@ class RequestTemplate(object):
     cookies: str = None
     use_session: bool = True
     is_duplicate: bool = False
-    result: str = None
+    result_template: str = None
     return_type: str = HTML
     return_item: str = None
     # 多个 stop 条件做笛卡尔积

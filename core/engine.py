@@ -24,12 +24,10 @@ class Eru(FileSystemEventHandler):
     千反田爱瑠
     """
     __slots__ = [
-        'loop',
         'template',
     ]
 
-    def __init__(self, loop: AbstractEventLoop) -> None:
-        self.loop = loop
+    def __init__(self) -> None:
         # TODO: 通过 watch 模板，来动态更新pg数据库，同时更新redis中的任务
         # 文件（基础配置） -> Redis -> 数据库（备份，以及启动状态和定时）
         super().__init__()
@@ -53,4 +51,22 @@ class Eru(FileSystemEventHandler):
             base_template = BaseTemplate(**file_data)
             print(base_template)
             # file_data字典 > BaseTemplate
+
+
+class Hyoka(object):
+    """
+    冰菓
+    """
+    __slots__ = [
+        'loop',
+    ]
+
+    def __init__(self, loop: AbstractEventLoop):
+        self.loop = loop
+
+    def start(self):
+        pass
+
+    def stop(self):
+        pass
 
